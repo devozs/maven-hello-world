@@ -95,7 +95,4 @@ jobs:
           docker pull ${{ env.REGISTRY }}/${{ env.IMAGE }}:${{ env.TAG }}
           CONTAINER_ID=$(docker run -d -e NAME="Oz" -d ${{ env.REGISTRY }}/${{ env.IMAGE }}:${{ env.TAG }})
           docker logs ${CONTAINER_ID}
-
-      - name: Generate list using Markdown
-        run: |
-          echo "Execution Output ${CONTAINER_ID}" >> ${GITHUB_STEP_SUMMARY}
+          echo "Execution Output ${CONTAINER_ID}" >> ${GITHUB_STEP_SUMMARY}          
