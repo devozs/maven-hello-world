@@ -113,6 +113,7 @@ jobs:
     steps:
       - name: Setup Tools
         run:  |
+          pwd
           (cd deployment && ./setup.sh)
 
       - name: Deployment Script
