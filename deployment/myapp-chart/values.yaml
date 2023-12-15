@@ -1,0 +1,12 @@
+appName: myapp
+port: 80
+namespace: default
+
+userConfigmap:
+  name: user-configmap
+  data:
+    user: 'Oz Shemesh'
+
+image:
+  name: devozs/myapp
+  tag: 1.0.0

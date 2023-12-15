@@ -1,0 +1,2 @@
+POD_NAME=$(kubectl get pods -n {{ .Values.namespace }} --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}' | grep {{ .Values.appName }} | head -n 1)
+kubectl logs -n default ${POD_NAME}
