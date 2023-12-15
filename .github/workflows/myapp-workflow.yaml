@@ -113,8 +113,8 @@ jobs:
     steps:
       - name: Setup Tools
         run:  |
-          ./deployment/setup.sh
+          (cd deployment && ./deployment/setup.sh)
 
       - name: Deployment Script
         run:  |
-          ./deployment/deploy.sh -v ${{ vars.TAG }})
+          (cd deployment && ./deploy.sh -v ${{ vars.TAG }})
