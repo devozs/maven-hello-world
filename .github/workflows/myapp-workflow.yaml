@@ -113,7 +113,7 @@ jobs:
     steps:
       - name: Setup Tools
         run:  |
-          (cd deployment && ./deployment/setup.sh)
+          (cd deployment && ./setup.sh)
 
       - name: Deployment Script
         run:  |
