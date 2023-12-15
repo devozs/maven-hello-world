@@ -15,11 +15,13 @@ RUN mvn clean package
 FROM openjdk:17-slim
 ARG VERSION
 ENV APP_NAME_VERSION=myapp-${VERSION}
+ENV NAME=Anonymous
+
 RUN groupadd -r javauser && useradd -r -g javauser javauser
 
 USER javauser:javauser
 COPY --from=builder /usr/src/app/target/${APP_NAME_VERSION}.jar /usr/app/${APP_NAME_VERSION}.jar
 WORKDIR /usr/app
 
-ENV NAME=Anonymous
-CMD java -jar ${APP_NAME_VERSION}.jar $NAME
+ENTRYPOINT java -jar /usr/app/${APP_NAME_VERSION}.jar
+CMD ["${NAME}"]
