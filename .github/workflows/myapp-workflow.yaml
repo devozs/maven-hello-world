@@ -36,6 +36,11 @@ jobs:
           cd myapp
           mvn --batch-mode --update-snapshots verify
 
+      - name: Increment Version
+        run:  |
+          NEXTVERSION=$(echo ${{ vars.TAG }} | awk -F. -v OFS=. '{$NF += 1 ; print}')
+          gh variable set TAG --body="${NEXTVERSION}"
+
   docker-build:
     if: ${{ github.ref == 'refs/heads/master' }}
     runs-on: ubuntu-latest
