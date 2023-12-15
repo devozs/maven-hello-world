@@ -16,6 +16,7 @@ on:
 env:
   REGISTRY: docker.io/devozs
   IMAGE: myapp
+  GH_TOKEN: ${{ github.token }}
 
 jobs:
   app-build:
