@@ -16,7 +16,6 @@ on:
 env:
   REGISTRY: docker.io/devozs
   IMAGE: myapp
-  TAG: 1.0.0
 
 jobs:
   app-build:
