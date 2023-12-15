@@ -5,11 +5,13 @@ on:
     paths:
       - 'myapp/src/**'
       - '.github/workflows/myapp-workflow.yaml'
+      - 'myapp/Dockerfile'
   push:
     branches: [ master ]
     paths:
       - 'myapp/src/**'
       - '.github/workflows/myapp-workflow.yaml'
+      - 'myapp/Dockerfile'
 jobs:
   app-build:
     runs-on: ubuntu-latest
