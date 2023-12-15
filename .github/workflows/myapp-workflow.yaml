@@ -68,7 +68,7 @@ jobs:
           context: myapp
           file: myapp/Dockerfile
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE }}:${{ env.TAG }}
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE }}:${{ vars.TAG }}
 
   docker-run:
     if: ${{ github.ref == 'refs/heads/master' }}
@@ -91,7 +91,7 @@ jobs:
 
       - name: Dokcer pull and run
         run:  |
-          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE }}:${{ env.TAG }}
-          CONTAINER_ID=$(docker run -d -e NAME="Oz" -d ${{ env.REGISTRY }}/${{ env.IMAGE }}:${{ env.TAG }})
+          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE }}:${{ vars.TAG }}
+          CONTAINER_ID=$(docker run -d -e NAME="Oz" -d ${{ env.REGISTRY }}/${{ env.IMAGE }}:${{ vars.TAG }})
           CONTAINER_LOGS=$(docker logs ${CONTAINER_ID})
           echo "Execution Output ${CONTAINER_LOGS}" >> ${GITHUB_STEP_SUMMARY}          
