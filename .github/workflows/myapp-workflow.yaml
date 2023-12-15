@@ -1,0 +1,32 @@
+name: MyApp Workflow
+on:
+  pull_request:
+    branches: [ master ]
+    paths:
+      - 'src/myapp/**'
+      - '.github/workflows/myapp-workflow.yaml'
+  push:
+    branches: [ master ]
+    paths:
+      - 'src/myapp/**'
+      - '.github/workflows/myapp-workflow.yaml'
+jobs:
+  app-build:
+    env:
+      REGISTRY: docker.io/devozs
+      IMAGE: myapp
+      TAG: 1.0.0
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Run tests
+        run: mvn --batch-mode --update-snapshots verify
