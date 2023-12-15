@@ -16,7 +16,7 @@ on:
 env:
   REGISTRY: docker.io/devozs
   IMAGE: myapp
-  GH_TOKEN: ${{ secrets.TOKEN_MAVEN_HELOW_WORLD }}
+  GH_TOKEN: ${{ secrets.PAT_HELLO_WORLD }}
 
 jobs:
   app-build:
