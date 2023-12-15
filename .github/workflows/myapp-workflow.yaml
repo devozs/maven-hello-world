@@ -16,13 +16,12 @@ on:
 env:
   REGISTRY: docker.io/devozs
   IMAGE: myapp
-  GH_TOKEN: ${{ github.token }}
+  GH_TOKEN: ${{ secrets.TOKEN_MAVEN_HELOW_WORLD }}
 
 jobs:
   app-build:
     runs-on: ubuntu-latest
-    permissions:
-      actions: write
+    permissions: write-all
 
     steps:
       - uses: actions/checkout@v3
