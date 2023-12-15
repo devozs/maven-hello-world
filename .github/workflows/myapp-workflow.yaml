@@ -94,5 +94,5 @@ jobs:
         run:  |
           docker pull ${{ env.REGISTRY }}/${{ env.IMAGE }}:${{ env.TAG }}
           CONTAINER_ID=$(docker run -d -e NAME="Oz" -d ${{ env.REGISTRY }}/${{ env.IMAGE }}:${{ env.TAG }})
-          docker logs ${CONTAINER_ID}
-          echo "Execution Output ${CONTAINER_ID}" >> ${GITHUB_STEP_SUMMARY}          
+          CONTAINER_LOGS=$(docker logs ${CONTAINER_ID})
+          echo "Execution Output ${CONTAINER_LOGS}" >> ${GITHUB_STEP_SUMMARY}          
