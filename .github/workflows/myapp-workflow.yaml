@@ -6,12 +6,14 @@ on:
       - 'myapp/src/**'
       - '.github/workflows/myapp-workflow.yaml'
       - 'myapp/Dockerfile'
+      - 'deployment'
   push:
     branches: [ master ]
     paths:
       - 'myapp/src/**'
       - '.github/workflows/myapp-workflow.yaml'
       - 'myapp/Dockerfile'
+      - 'deployment'
 
 env:
   REGISTRY: docker.io/devozs
@@ -102,3 +104,17 @@ jobs:
           CONTAINER_ID=$(docker run -d -e NAME="Oz" -d ${{ env.REGISTRY }}/${{ env.IMAGE }}:${{ vars.TAG }})
           CONTAINER_LOGS=$(docker logs ${CONTAINER_ID})
           echo "Execution Output ${CONTAINER_LOGS}" >> ${GITHUB_STEP_SUMMARY}
+
+  kind-deployment:
+    if: ${{ github.ref == 'refs/heads/master' }}
+    runs-on: ubuntu-latest
+    needs:
+      - docker-run
+    steps:
+      - name: Setup Tools
+        run:  |
+          ./setup.sh
+
+      - name: Deployment Script
+        run:  |
+          ./deploy.sh -v ${{ vars.TAG }})

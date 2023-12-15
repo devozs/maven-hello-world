@@ -1,0 +1,7 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: {{ .Values.userConfigmap.name }}
+  namespace: {{ .Values.namespace }}
+data:
+  user: "{{ .Values.userConfigmap.data.user }}"
