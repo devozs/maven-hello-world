@@ -1,7 +1,10 @@
 #!/bin/bash
 
+red=$(tput setaf 1)
+
 VERSION=1.0.0
 APP_NAME=myapp
+FLUX_DEPLOYMENT=false
 
 command -v kind >/dev/null 2>&1 || {
   echo >&2 "${red}I require kind but it's not installed.  Aborting."
@@ -21,21 +24,43 @@ command -v kubectl >/dev/null 2>&1 || {
 while [[ $# -gt 0 ]]; do
     case $1 in
         -v|--version)
-            if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
+            if [ -n "$2" ] && [ "${2:0:1}" != "-" ]; then
                 VERSION=$2
-                shift # Move past the value
+                shift
             else
                 echo "Error: Argument for $1 is missing" >&2
                 exit 1
             fi
+            ;;
+        -f)
+            FLUX_DEPLOYMENT=true
             ;;
         *)    # Unknown option
             echo "Unknown option: $1" >&2
             exit 1
             ;;
     esac
-    shift # Move to the next argument
+    shift
 done
+
+checkGithubToken() {
+    if [ -z "${GITHUB_TOKEN}" ]; then
+        echo "Error: GITHUB_TOKEN is not set."
+        exit 1
+    else
+        echo "GITHUB_TOKEN is set."
+    fi
+}
+
+# FluxCD Installation checks
+if [ ${FLUX_DEPLOYMENT} == true ]; then
+  command -v flux >/dev/null 2>&1 || {
+    echo >&2 "${red}I require flux but it's not installed.  Aborting."
+    exit 1
+  }
+  checkGithubToken
+fi
+
 
 echo "Version ${VERSION}"
 
@@ -64,19 +89,37 @@ nodes:
     protocol: TCP
 EOF
 
-kubectl cluster-info --context ${APP_NAME}
+kubectl cluster-info --context kind-${APP_NAME}
 
-NAMESPACE=dev
-kubectl create ns ${NAMESPACE}
-helm upgrade --install myapp-release-${NAMESPACE} myapp-chart --values myapp-chart/values.yaml -f myapp-chart/values-${NAMESPACE}.yaml --set image.tag="${VERSION}"
+if [ ${FLUX_DEPLOYMENT} == true ]; then
+  echo 'Deployment using FluxCD'
 
-kubectl rollout status -n ${NAMESPACE} deployment/${APP_NAME}
+else
+  helmDeployment dev
+fi
 
-POD_NAME=$(kubectl get pods -n ${NAMESPACE} --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}' | grep myapp | head -n 1)
-echo "POD Image Details"
-kubectl describe pod -n ${NAMESPACE} "${POD_NAME}" | grep Image
+helmDeployment() {
+  NAMESPACE=$1
+  kubectl create ns "${NAMESPACE}"
+  helm upgrade --install "myapp-release-${NAMESPACE}" myapp-chart --values myapp-chart/values.yaml -f "myapp-chart/values-${NAMESPACE}.yaml" --set image.tag="${VERSION}"
+  kubectl rollout status -n "${NAMESPACE} deployment/${APP_NAME}"
+}
 
-echo "POD Logs"
-kubectl logs -n ${NAMESPACE} "${POD_NAME}"
+fluxDeployment(){
+  echo 'Deploy using FluxCD'
+}
 
+verifyDeployment(){
+  NAMESPACE=$1
+  POD_NAME=$(kubectl get pods -n "${NAMESPACE}" --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}' | grep myapp | head -n 1)
+  echo "POD Image Details:"
+  kubectl describe pod -n" ${NAMESPACE}" "${POD_NAME}" | grep Image
+
+  echo "POD Logs:"
+  kubectl logs -n "${NAMESPACE}" "${POD_NAME}"
+}
+
+verifyDeployment dev
+
+echo
 echo "Deployment Done"
