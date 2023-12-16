@@ -6,14 +6,14 @@ on:
       - 'myapp/src/**'
       - '.github/workflows/myapp-workflow.yaml'
       - 'myapp/Dockerfile'
-      - 'deployment'
+      - 'deployment/**'
   push:
     branches: [ master ]
     paths:
       - 'myapp/src/**'
       - '.github/workflows/myapp-workflow.yaml'
       - 'myapp/Dockerfile'
-      - 'deployment'
+      - 'deployment/**'
 
 env:
   REGISTRY: docker.io/devozs
