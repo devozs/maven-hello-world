@@ -111,9 +111,10 @@ jobs:
     needs:
       - docker-run
     steps:
+      - uses: actions/checkout@v3
+
       - name: Setup Tools
         run:  |
-          pwd
           (cd deployment && ./setup.sh)
 
       - name: Deployment Script
