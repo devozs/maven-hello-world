@@ -140,9 +140,9 @@ jobs:
       - name: Deployment Script Using FluxCD
         shell: bash
         run:  |
-          GH_TOKEN=${{ secrets.PAT_HELLO_WORLD }}
-          GH_USER=${{ github.actor }}
+          export GITHUB_TOKEN=${{ secrets.PAT_HELLO_WORLD }}
+          export GITHUB_USER=${{ github.actor }}
           cd deployment
-          source ./deploy.sh --flux
+          ./deploy.sh --flux
           DEPLOYMENT_LOGS=$(cat output.txt)
           echo "${DEPLOYMENT_LOGS}" >> ${GITHUB_STEP_SUMMARY}
