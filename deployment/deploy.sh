@@ -96,10 +96,12 @@ if [ ${FLUX_DEPLOYMENT} == true ]; then
   }
   checkGithubToken
   checkGithubUser
+  echo "Version: Managed By FluxCD"
+else
+  echo "Version: ${VERSION}"
 fi
 
 
-echo "Version ${VERSION}"
 
 kind delete cluster --name ${APP_NAME}
 

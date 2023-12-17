@@ -120,4 +120,19 @@ jobs:
       - name: Deployment Script
         run:  |
           (cd deployment && ./deploy.sh -v ${{ vars.TAG }})
-#          echo "Execution Output ${CONTAINER_LOGS}" >> ${GITHUB_STEP_SUMMARY}
+
+  flux-deployment:
+    if: ${{ github.ref == 'refs/heads/master' }}
+    runs-on: ubuntu-latest
+    needs:
+      - docker-run
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Tools
+        run:  |
+          (cd deployment && ./setup.sh)
+
+      - name: Deployment Script
+        run:  |
+          (cd deployment && ./deploy.sh --flux)
