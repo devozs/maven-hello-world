@@ -6,5 +6,3 @@ metadata:
 spec:
   image: REGISTRY_IMAGE
   interval: 1m0s
-  secretRef:
-    name: DOCKER_SECRET

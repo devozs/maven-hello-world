@@ -90,7 +90,7 @@ fluxDeployment() {
 }
 
 deploymentLogs(){
-  sleep 10
+  sleep 20
   kubectl wait -n "${NAMESPACE}" deployment/${APP_NAME} --for=condition=Available --timeout=30s
 
   NAMESPACE=$1
