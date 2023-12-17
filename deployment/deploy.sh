@@ -142,6 +142,7 @@ kubectl cluster-info --context kind-${APP_NAME}
 
 if [ ${FLUX_DEPLOYMENT} == true ]; then
   fluxDeployment
+  sleep 20
 else
   helmDeployment dev
 fi
