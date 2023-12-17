@@ -135,4 +135,6 @@ jobs:
 
       - name: Deployment Script
         run:  |
+          export GH_TOKEN=${{ secrets.PAT_HELLO_WORLD }}
+          export GH_USER=${{ github.actor }}
           (cd deployment && ./deploy.sh --flux)
