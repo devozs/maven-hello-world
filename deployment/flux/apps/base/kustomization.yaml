@@ -4,4 +4,4 @@ kind: Kustomization
 resources:
   - myapp
   - myapp-policy
-  - updates
+  #- updates #disable image update for demo purpuse
