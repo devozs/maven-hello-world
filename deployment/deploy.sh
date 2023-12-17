@@ -65,7 +65,6 @@ helmDeployment() {
   NAMESPACE=$1
   kubectl create ns "${NAMESPACE}"
   helm upgrade --install "myapp-release-${NAMESPACE}" myapp-chart --values myapp-chart/values.yaml -f "myapp-chart/values-${NAMESPACE}.yaml" --set image.tag="${VERSION}"
-  kubectl rollout status -n "${NAMESPACE} deployment/${APP_NAME}"
 }
 
 fluxDeployment() {
@@ -78,11 +77,13 @@ fluxDeployment() {
   --personal
 }
 
-verifyDeployment(){
+deploymentLogs(){
   NAMESPACE=$1
-  POD_NAME=$(kubectl get pods -n "${NAMESPACE}" --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}' | grep myapp | head -n 1)
+  kubectl rollout status -n "${NAMESPACE}" deployment/${APP_NAME}
+
+  POD_NAME=$(kubectl get pods -n "${NAMESPACE}" --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}' | grep ${APP_NAME} | head -n 1)
   echo "POD Image Details:"
-  kubectl describe pod -n" ${NAMESPACE}" "${POD_NAME}" | grep Image
+  kubectl describe pod -n "${NAMESPACE}" "${POD_NAME}" | grep Image
 
   echo "POD Logs:"
   kubectl logs -n "${NAMESPACE}" "${POD_NAME}"
@@ -96,10 +97,12 @@ if [ ${FLUX_DEPLOYMENT} == true ]; then
   }
   checkGithubToken
   checkGithubUser
+  echo "Version: Managed By FluxCD"
+else
+  echo "Version: ${VERSION}"
 fi
 
 
-echo "Version ${VERSION}"
 
 kind delete cluster --name ${APP_NAME}
 
@@ -134,7 +137,7 @@ else
   helmDeployment dev
 fi
 
-verifyDeployment dev
+deploymentLogs dev
 
 echo
 echo "Deployment Done"
