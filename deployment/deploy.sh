@@ -59,7 +59,7 @@ checkGithubUser() {
         echo "Error: GITHUB_USER is not set." >> ${OUTPUT_FILE}
         exit 1
     else
-        echo "GITHUB_USER is set." >> ${OUTPUT_FILE}
+        echo "GITHUB_USER is set."
     fi
 }
 
