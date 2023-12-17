@@ -11,16 +11,19 @@ echo "Starts new deployment..." > ${OUTPUT_FILE}
 
 command -v kind >/dev/null 2>&1 || {
   echo >&2 "${red}I require kind but it's not installed.  Aborting." >> ${OUTPUT_FILE}
+  cat ${OUTPUT_FILE}
   exit 1
 }
 
 command -v helm >/dev/null 2>&1 || {
   echo >&2 "${red}I require helm but it's not installed.  Aborting." >> ${OUTPUT_FILE}
+  cat ${OUTPUT_FILE}
   exit 1
 }
 
 command -v kubectl >/dev/null 2>&1 || {
   echo >&2 "${red}I require kubectl but it's not installed.  Aborting." >> ${OUTPUT_FILE}
+  cat ${OUTPUT_FILE}
   exit 1
 }
 
@@ -49,6 +52,7 @@ done
 checkGithubToken() {
     if [ -z "${GITHUB_TOKEN}" ]; then
         echo "Error: GITHUB_TOKEN is not set." >> ${OUTPUT_FILE}
+        cat ${OUTPUT_FILE}
         exit 1
     else
         echo "GITHUB_TOKEN is set."
@@ -57,6 +61,7 @@ checkGithubToken() {
 checkGithubUser() {
     if [ -z "${GITHUB_USER}" ]; then
         echo "Error: GITHUB_USER is not set." >> ${OUTPUT_FILE}
+        cat ${OUTPUT_FILE}
         exit 1
     else
         echo "GITHUB_USER is set."
