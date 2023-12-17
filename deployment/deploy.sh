@@ -84,6 +84,8 @@ fluxDeployment() {
 }
 
 deploymentLogs(){
+  kubectl wait -n "${NAMESPACE}" deployment/${APP_NAME} --for=condition=Available --timeout=30s
+
   NAMESPACE=$1
   OUTPUT=$(kubectl rollout status -n "${NAMESPACE}" deployment/${APP_NAME})
   echo "${OUTPUT}" >> ${OUTPUT_FILE}
@@ -142,7 +144,6 @@ kubectl cluster-info --context kind-${APP_NAME}
 
 if [ ${FLUX_DEPLOYMENT} == true ]; then
   fluxDeployment
-  sleep 20
 else
   helmDeployment dev
 fi
