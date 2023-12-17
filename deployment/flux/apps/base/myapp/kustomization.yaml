@@ -3,3 +3,6 @@ kind: Kustomization
 
 resources:
   - helmrelease-myapp.yaml
+
+configurations:
+  - kustomizeconfig.yaml

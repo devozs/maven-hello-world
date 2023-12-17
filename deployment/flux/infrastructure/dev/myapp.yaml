@@ -13,3 +13,7 @@ spec:
     name: flux-system
   timeout: 3m0s
   wait: true
+  healthChecks:
+    - kind: Deployment
+      name: myapp
+      namespace: dev

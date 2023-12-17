@@ -13,6 +13,6 @@ spec:
         kind: GitRepository
         name: flux-system
         namespace: flux-system
-  values:
-    image:
-      tag: 1.0.0
+  valuesFrom:
+    - kind: ConfigMap
+      name: myapp-values

@@ -32,7 +32,7 @@ while [[ $# -gt 0 ]]; do
                 exit 1
             fi
             ;;
-        -f)
+        -f|--flux)
             FLUX_DEPLOYMENT=true
             ;;
         *)    # Unknown option
@@ -51,6 +51,42 @@ checkGithubToken() {
         echo "GITHUB_TOKEN is set."
     fi
 }
+checkGithubUser() {
+    if [ -z "${GITHUB_USER}" ]; then
+        echo "Error: GITHUB_USER is not set."
+        exit 1
+    else
+        echo "GITHUB_USER is set."
+    fi
+}
+
+helmDeployment() {
+  echo 'Deploy using Kubectl and Helm CLIs'
+  NAMESPACE=$1
+  kubectl create ns "${NAMESPACE}"
+  helm upgrade --install "myapp-release-${NAMESPACE}" myapp-chart --values myapp-chart/values.yaml -f "myapp-chart/values-${NAMESPACE}.yaml" --set image.tag="${VERSION}"
+  kubectl rollout status -n "${NAMESPACE} deployment/${APP_NAME}"
+}
+
+fluxDeployment() {
+  echo 'Deploy using FluxCD'
+  flux bootstrap github \
+  --owner="${GITHUB_USER}" \
+  --repository=maven-hello-world \
+  --branch=master \
+  --path=./deployment/flux/infrastructure/dev \
+  --personal
+}
+
+verifyDeployment(){
+  NAMESPACE=$1
+  POD_NAME=$(kubectl get pods -n "${NAMESPACE}" --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}' | grep myapp | head -n 1)
+  echo "POD Image Details:"
+  kubectl describe pod -n" ${NAMESPACE}" "${POD_NAME}" | grep Image
+
+  echo "POD Logs:"
+  kubectl logs -n "${NAMESPACE}" "${POD_NAME}"
+}
 
 # FluxCD Installation checks
 if [ ${FLUX_DEPLOYMENT} == true ]; then
@@ -59,6 +95,7 @@ if [ ${FLUX_DEPLOYMENT} == true ]; then
     exit 1
   }
   checkGithubToken
+  checkGithubUser
 fi
 
 
@@ -92,32 +129,10 @@ EOF
 kubectl cluster-info --context kind-${APP_NAME}
 
 if [ ${FLUX_DEPLOYMENT} == true ]; then
-  echo 'Deployment using FluxCD'
-
+  fluxDeployment
 else
   helmDeployment dev
 fi
-
-helmDeployment() {
-  NAMESPACE=$1
-  kubectl create ns "${NAMESPACE}"
-  helm upgrade --install "myapp-release-${NAMESPACE}" myapp-chart --values myapp-chart/values.yaml -f "myapp-chart/values-${NAMESPACE}.yaml" --set image.tag="${VERSION}"
-  kubectl rollout status -n "${NAMESPACE} deployment/${APP_NAME}"
-}
-
-fluxDeployment(){
-  echo 'Deploy using FluxCD'
-}
-
-verifyDeployment(){
-  NAMESPACE=$1
-  POD_NAME=$(kubectl get pods -n "${NAMESPACE}" --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}' | grep myapp | head -n 1)
-  echo "POD Image Details:"
-  kubectl describe pod -n" ${NAMESPACE}" "${POD_NAME}" | grep Image
-
-  echo "POD Logs:"
-  kubectl logs -n "${NAMESPACE}" "${POD_NAME}"
-}
 
 verifyDeployment dev
 
