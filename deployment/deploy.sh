@@ -5,19 +5,22 @@ red=$(tput setaf 1)
 VERSION=1.0.0
 APP_NAME=myapp
 FLUX_DEPLOYMENT=false
+OUTPUT_FILE=output.txt
+
+echo "Starts new deployment..." > ${OUTPUT_FILE}
 
 command -v kind >/dev/null 2>&1 || {
-  echo >&2 "${red}I require kind but it's not installed.  Aborting."
+  echo >&2 "${red}I require kind but it's not installed.  Aborting." >> ${OUTPUT_FILE}
   exit 1
 }
 
 command -v helm >/dev/null 2>&1 || {
-  echo >&2 "${red}I require helm but it's not installed.  Aborting."
+  echo >&2 "${red}I require helm but it's not installed.  Aborting." >> ${OUTPUT_FILE}
   exit 1
 }
 
 command -v kubectl >/dev/null 2>&1 || {
-  echo >&2 "${red}I require kubectl but it's not installed.  Aborting."
+  echo >&2 "${red}I require kubectl but it's not installed.  Aborting." >> ${OUTPUT_FILE}
   exit 1
 }
 
@@ -28,7 +31,7 @@ while [[ $# -gt 0 ]]; do
                 VERSION=$2
                 shift
             else
-                echo "Error: Argument for $1 is missing" >&2
+                echo "Error: Argument for $1 is missing" >&2 >> ${OUTPUT_FILE}
                 exit 1
             fi
             ;;
@@ -36,7 +39,7 @@ while [[ $# -gt 0 ]]; do
             FLUX_DEPLOYMENT=true
             ;;
         *)    # Unknown option
-            echo "Unknown option: $1" >&2
+            echo "Unknown option: $1" >&2 >> ${OUTPUT_FILE}
             exit 1
             ;;
     esac
@@ -45,7 +48,7 @@ done
 
 checkGithubToken() {
     if [ -z "${GITHUB_TOKEN}" ]; then
-        echo "Error: GITHUB_TOKEN is not set."
+        echo "Error: GITHUB_TOKEN is not set." >> ${OUTPUT_FILE}
         exit 1
     else
         echo "GITHUB_TOKEN is set."
@@ -53,53 +56,59 @@ checkGithubToken() {
 }
 checkGithubUser() {
     if [ -z "${GITHUB_USER}" ]; then
-        echo "Error: GITHUB_USER is not set."
+        echo "Error: GITHUB_USER is not set." >> ${OUTPUT_FILE}
         exit 1
     else
-        echo "GITHUB_USER is set."
+        echo "GITHUB_USER is set." >> ${OUTPUT_FILE}
     fi
 }
 
 helmDeployment() {
-  echo 'Deploy using Kubectl and Helm CLIs'
+  echo 'Deploy using Kubectl and Helm CLIs' >> ${OUTPUT_FILE}
   NAMESPACE=$1
   kubectl create ns "${NAMESPACE}"
-  helm upgrade --install "myapp-release-${NAMESPACE}" myapp-chart --values myapp-chart/values.yaml -f "myapp-chart/values-${NAMESPACE}.yaml" --set image.tag="${VERSION}"
+  OUTPUT=$(helm upgrade --install "myapp-release-${NAMESPACE}" myapp-chart --values myapp-chart/values.yaml -f "myapp-chart/values-${NAMESPACE}.yaml" --set image.tag="${VERSION}")
+  echo "${OUTPUT}" >> ${OUTPUT_FILE}
 }
 
 fluxDeployment() {
-  echo 'Deploy using FluxCD'
-  flux bootstrap github \
+  echo 'Deploy using FluxCD' >> ${OUTPUT_FILE}
+  OUTPUT=$(flux bootstrap github \
   --owner="${GITHUB_USER}" \
   --repository=maven-hello-world \
   --branch=master \
   --path=./deployment/flux/infrastructure/dev \
-  --personal
+  --personal)
+
+  echo "${OUTPUT}" >> ${OUTPUT_FILE}
 }
 
 deploymentLogs(){
   NAMESPACE=$1
-  kubectl rollout status -n "${NAMESPACE}" deployment/${APP_NAME}
+  OUTPUT=$(kubectl rollout status -n "${NAMESPACE}" deployment/${APP_NAME})
+  echo "${OUTPUT}" >> ${OUTPUT_FILE}
 
   POD_NAME=$(kubectl get pods -n "${NAMESPACE}" --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}' | grep ${APP_NAME} | head -n 1)
-  echo "POD Image Details:"
-  kubectl describe pod -n "${NAMESPACE}" "${POD_NAME}" | grep Image
+  echo "POD Image Details:" >> ${OUTPUT_FILE}
+  OUTPUT=$(kubectl describe pod -n "${NAMESPACE}" "${POD_NAME}" | grep Image)
+  echo "${OUTPUT}" >> ${OUTPUT_FILE}
 
-  echo "POD Logs:"
-  kubectl logs -n "${NAMESPACE}" "${POD_NAME}"
+  echo "POD Logs:" >> ${OUTPUT_FILE}
+  OUTPUT=$(kubectl logs -n "${NAMESPACE}" "${POD_NAME}")
+  echo "${OUTPUT}" >> ${OUTPUT_FILE}
 }
 
 # FluxCD Installation checks
 if [ ${FLUX_DEPLOYMENT} == true ]; then
   command -v flux >/dev/null 2>&1 || {
-    echo >&2 "${red}I require flux but it's not installed.  Aborting."
+    echo >&2 "${red}I require flux but it's not installed.  Aborting." >> ${OUTPUT_FILE}
     exit 1
   }
   checkGithubToken
   checkGithubUser
-  echo "Version: Managed By FluxCD"
+  echo "Version: Managed By FluxCD" >> ${OUTPUT_FILE}
 else
-  echo "Version: ${VERSION}"
+  echo "Version: ${VERSION}" >> ${OUTPUT_FILE}
 fi
 
 
@@ -140,4 +149,6 @@ fi
 deploymentLogs dev
 
 echo
-echo "Deployment Done"
+echo "Deployment Done" >> ${OUTPUT_FILE}
+
+cat ${OUTPUT_FILE}

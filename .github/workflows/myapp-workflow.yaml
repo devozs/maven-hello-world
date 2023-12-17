@@ -117,9 +117,13 @@ jobs:
         run:  |
           (cd deployment && ./setup.sh)
 
-      - name: Deployment Script
+      - name: Deployment Script Using CLIs
+        shell: bash
         run:  |
-          (cd deployment && ./deploy.sh -v ${{ vars.TAG }})
+          cd deployment
+          ./deploy.sh -v ${{ vars.TAG }}
+          DEPLOYMENT_LOGS=$(cat output.txt)
+          echo "${DEPLOYMENT_LOGS}" >> ${GITHUB_STEP_SUMMARY}
 
   flux-deployment:
     if: ${{ github.ref == 'refs/heads/master' }}
@@ -133,8 +137,12 @@ jobs:
         run:  |
           (cd deployment && ./setup.sh)
 
-      - name: Deployment Script
+      - name: Deployment Script Using FluxCD
+        shell: bash
         run:  |
-          export GH_TOKEN=${{ secrets.PAT_HELLO_WORLD }}
-          export GH_USER=${{ github.actor }}
-          (cd deployment && ./deploy.sh --flux)
+          GH_TOKEN=${{ secrets.PAT_HELLO_WORLD }}
+          GH_USER=${{ github.actor }}
+          cd deployment
+          source ./deploy.sh --flux
+          DEPLOYMENT_LOGS=$(cat output.txt)
+          echo "${DEPLOYMENT_LOGS}" >> ${GITHUB_STEP_SUMMARY}
