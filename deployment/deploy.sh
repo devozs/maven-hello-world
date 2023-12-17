@@ -78,7 +78,8 @@ fluxDeployment() {
   --repository=maven-hello-world \
   --branch=master \
   --path=./deployment/flux/infrastructure/dev \
-  --personal)
+  --personal \
+  --components-extra=image-reflector-controller,image-automation-controller)
 
   echo "${OUTPUT}" >> ${OUTPUT_FILE}
 }

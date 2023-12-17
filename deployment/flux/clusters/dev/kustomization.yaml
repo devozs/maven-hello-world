@@ -10,3 +10,30 @@ configMapGenerator:
     namespace: dev
     files:
       - values.yaml=../../../myapp-chart/values-dev.yaml
+
+
+
+- path: patches/myapp-image-policy.yaml
+  target:
+    group: image.toolkit.fluxcd.io
+    version: v1beta1
+    kind: ImagePolicy
+    namespace: flux-system
+    name: myapp
+- path: patches/myapp-image-repository.yaml
+  target:
+    group: image.toolkit.fluxcd.io
+    version: v1beta1
+    kind: ImageRepository
+    namespace: flux-system
+    name: myapp
+- path: patches/image-update-automation.yaml
+  target:
+    group: image.toolkit.fluxcd.io
+    version: v1beta1
+    kind: ImageUpdateAutomation
+    namespace: flux-system
+
+images:
+  - name: devozs/myapp
+    newTag: 1.0.0 # {"$imagepolicy": "flux-system:myapp:tag"}
