@@ -1,0 +1,15 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: dev
+
+resources:
+  - myapp-deployment.yaml
+  - myapp-image-repository.yaml
+  - myapp-image-policy.yaml
+
+
+configMapGenerator:
+  - name: user-configmap-policy
+    literals:
+      - user=DevOzs
+

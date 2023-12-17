@@ -1,0 +1,3 @@
+- op: replace
+  path: /spec/policy/semver/range
+  value: 1.0.x

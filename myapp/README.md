@@ -1,3 +1,5 @@
+Link to my blog post
+
 # Plain Maven Build and Java Execution
 Build
 `mvn package`

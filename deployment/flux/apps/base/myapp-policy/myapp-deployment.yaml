@@ -1,25 +1,25 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.appName }}
-  namespace: {{ .Values.namespace }}
+  name: myapp-policy
+  namespace: dev
   labels:
-    app: {{ .Values.appName }}
+    app: myapp-policy
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
-      app: {{ .Values.appName }}
+      app: myapp-policy
       tier: backend
   template:
     metadata:
       labels:
-        app: {{ .Values.appName }}
+        app: myapp-policy
         tier: backend
     spec: # Pod spec
       containers:
         - name: myapp-container
-          image: "{{ .Values.image.name }}:{{ .Values.image.tag }}"
+          image: "devozs/myapp:1.0.0"
           # both command and args are basically redundant as there is ENTRYPOINT and CMD in the Dockerfile
           # however its required in order to avoid CrashLoopBackOff since this Java main exit one done...
           command: ["/bin/sh"]
@@ -31,7 +31,7 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   key: user
-                  name: user-configmap
+                  name: user-configmap-policy
           resources:
             requests:
               memory: "4Mi"

@@ -1,0 +1,10 @@
+apiVersion: image.toolkit.fluxcd.io/v1beta1
+kind: ImageRepository
+metadata:
+  name: myapp
+  namespace: flux-system
+spec:
+  image: REGISTRY_IMAGE
+  interval: 1m0s
+  secretRef:
+    name: DOCKER_SECRET
